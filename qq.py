@@ -1,45 +1,35 @@
-```dart
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MangaApp());
-}
+void main() => runApp(const KomikApp());
 
-class MangaApp extends StatelessWidget {
-  const MangaApp({super.key});
+class KomikApp extends StatelessWidget {
+  const KomikApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'MGKOMIK',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF1C1C1E),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1C1C1E),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
+        scaffoldBackgroundColor: const Color(0xFF222222),
       ),
-      home: const MangaListPage(),
+      home: const KomikPage(),
     );
   }
 }
 
-// Model data
-class Manga {
+class KomikItem {
   final String title;
-  final String coverUrl;
-  final String country; // 'KR' atau 'CN'
+  final String flag;
+  final List<Color> colors;
   final String latestChapter;
   final String latestTime;
   final String previousChapter;
   final String previousTime;
 
-  const Manga({
+  const KomikItem({
     required this.title,
-    required this.coverUrl,
-    required this.country,
+    required this.flag,
+    required this.colors,
     required this.latestChapter,
     required this.latestTime,
     required this.previousChapter,
@@ -47,237 +37,241 @@ class Manga {
   });
 }
 
-// Reusable widget: badge bendera negara
-class CountryBadge extends StatelessWidget {
-  final String country;
+class KomikPage extends StatelessWidget {
+  const KomikPage({super.key});
 
-  const CountryBadge({super.key, required this.country});
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isKorea = country == 'KR';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isKorea ? Colors.white : const Color(0xFFDE2910),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        isKorea ? '🇰🇷' : '🇨🇳',
-        style: const TextStyle(fontSize: 16),
-      ),
-    );
-  }
-}
-
-// Reusable widget: tombol chapter + waktu rilis
-class ChapterTile extends StatelessWidget {
-  final String chapter;
-  final String time;
-  final VoidCallback? onTap;
-
-  const ChapterTile({
-    super.key,
-    required this.chapter,
-    required this.time,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF3A3A3C),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              chapter,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.white70,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Padding(
-          padding: const EdgeInsets.only(left: 2),
-          child: Text(
-            time,
-            style: const TextStyle(fontSize: 12, color: Colors.white38),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// Reusable widget: kartu manga
-class MangaCard extends StatelessWidget {
-  final Manga manga;
-  final double width;
-
-  const MangaCard({super.key, required this.manga, required this.width});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Cover + badge negara
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: AspectRatio(
-                  aspectRatio: 3 / 4.2,
-                  child: Image.network(
-                    manga.coverUrl,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: const Color(0xFF2C2C2E),
-                        child: const Center(
-                          child: Icon(
-                            Icons.image_not_supported_outlined,
-                            size: 40,
-                            color: Colors.white38,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: CountryBadge(country: manga.country),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Judul (dipotong dengan ellipsis)
-          Text(
-            manga.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-              color: Colors.white70,
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Chapter terbaru
-          ChapterTile(
-            chapter: manga.latestChapter,
-            time: manga.latestTime,
-          ),
-          const SizedBox(height: 10),
-
-          // Chapter sebelumnya
-          ChapterTile(
-            chapter: manga.previousChapter,
-            time: manga.previousTime,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MangaListPage extends StatelessWidget {
-  const MangaListPage({super.key});
-
-  static const List<Manga> _mangaList = [
-    Manga(
-      title: 'MookHyang: Dark Lady',
-      coverUrl: 'https://picsum.photos/seed/manga1/400/560',
-      country: 'KR',
+  static const List<KomikItem> items = [
+    KomikItem(
+      title: 'MookHyang: Darklady',
+      flag: '🇰🇷',
+      colors: [Color(0xFFE8D9A8), Color(0xFF6A4A7C), Color(0xFF2A1F3D)],
       latestChapter: 'Chapter 300',
       latestTime: '21 hours ago',
       previousChapter: 'Chapter 299',
       previousTime: '15 Sep 26',
     ),
-    Manga(
+    KomikItem(
       title: 'It Starts With a King Account',
-      coverUrl: 'https://picsum.photos/seed/manga2/400/560',
-      country: 'CN',
+      flag: '🇨🇳',
+      colors: [Color(0xFF3B5BA8), Color(0xFFE6A23C), Color(0xFF1B1B3A)],
       latestChapter: 'Chapter 337',
       latestTime: '21 hours ago',
       previousChapter: 'Chapter 336',
       previousTime: '2 days ago',
     ),
-    Manga(
+    KomikItem(
       title: 'Reincarnator',
-      coverUrl: 'https://picsum.photos/seed/manga3/400/560',
-      country: 'KR',
+      flag: '🇰🇷',
+      colors: [Color(0xFF8A4FFF), Color(0xFF3A1F6B), Color(0xFF14102B)],
       latestChapter: 'Chapter 120',
       latestTime: '1 day ago',
       previousChapter: 'Chapter 119',
       previousTime: '3 days ago',
     ),
-    Manga(
-      title: 'Great Yuan Dynasty',
-      coverUrl: 'https://picsum.photos/seed/manga4/400/560',
-      country: 'CN',
-      latestChapter: 'Chapter 85',
+    KomikItem(
+      title: 'Great Ancestor',
+      flag: '🇨🇳',
+      colors: [Color(0xFFBFD3E0), Color(0xFF3C4A8A), Color(0xFF14142B)],
+      latestChapter: 'Chapter 88',
       latestTime: '2 days ago',
-      previousChapter: 'Chapter 84',
+      previousChapter: 'Chapter 87',
       previousTime: '4 days ago',
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
-    const double horizontalPadding = 16;
-    const double spacing = 16;
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double cardWidth =
-        (screenWidth - (horizontalPadding * 2) - spacing) / 2;
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'MGKOMIK',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      appBar: const BrowserBar(),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: items.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 20,
+          childAspectRatio: 0.45,
         ),
-        actions: const [
-          Icon(Icons.share_outlined),
-          SizedBox(width: 16),
-          Icon(Icons.bookmark_border),
-          SizedBox(width: 16),
-          Icon(Icons.more_vert),
-          SizedBox(width: 8),
-        ],
+        itemBuilder: (context, index) => KomikCard(item: items[index]),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(horizontalPadding),
-        child: Wrap(
-          spacing: spacing,
-          runSpacing: 28,
-          children: _mangaList
-              .map((manga) => MangaCard(manga: manga, width: cardWidth))
-              .toList(),
+    );
+  }
+}
+
+class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
+  const BrowserBar({super.key});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(64);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFF1F2023),
+      child: SafeArea(
+        bottom: false,
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.keyboard_arrow_down,
+                    color: Colors.white, size: 32),
+                onPressed: () {},
+              ),
+              const Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'MGKOMIK | ...',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      'id.mgkomik.cc',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.share_outlined, color: Colors.white),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.bookmark_border, color: Colors.white),
+                onPressed: () {},
+              ),
+              IconButton(
+                icon: const Icon(Icons.more_vert, color: Colors.white),
+                onPressed: () {},
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-```
+
+class KomikCard extends StatelessWidget {
+  final KomikItem item;
+
+  const KomikCard({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AspectRatio(
+          aspectRatio: 0.6,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: item.colors,
+                    ),
+                  ),
+                  alignment: Alignment.bottomLeft,
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(item.flag, style: const TextStyle(fontSize: 18)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          item.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ChapterRow(chapter: item.latestChapter, time: item.latestTime),
+        const SizedBox(height: 10),
+        ChapterRow(chapter: item.previousChapter, time: item.previousTime),
+      ],
+    );
+  }
+}
+
+class ChapterRow extends StatelessWidget {
+  final String chapter;
+  final String time;
+
+  const ChapterRow({super.key, required this.chapter, required this.time});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF3A3A3C),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            chapter,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          time,
+          style: const TextStyle(color: Colors.white38, fontSize: 15),
+        ),
+      ],
+    );
+  }
+}
