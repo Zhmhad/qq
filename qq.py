@@ -2,328 +2,279 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const SeminarApp());
+  runApp(const MangaApp());
 }
 
-class SeminarApp extends StatelessWidget {
-  const SeminarApp({super.key});
+class MangaApp extends StatelessWidget {
+  const MangaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Seminar Teknologi',
+      title: 'MGKOMIK',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: const Color(0xFF1C1C1E),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
+          backgroundColor: Color(0xFF1C1C1E),
+          foregroundColor: Colors.white,
           elevation: 0,
         ),
       ),
-      home: const SeminarPage(),
+      home: const MangaListPage(),
     );
   }
 }
 
-// Reusable widget untuk identitas pembicara
-class SpeakerCard extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final String role;
-  final IconData badgeIcon;
-  final String badgeLabel;
-  final double avatarRadius;
-  final double nameFontSize;
-  final double detailFontSize;
-  final double iconSize;
-  final double leftPadding;
+// Model data
+class Manga {
+  final String title;
+  final String coverUrl;
+  final String country; // 'KR' atau 'CN'
+  final String latestChapter;
+  final String latestTime;
+  final String previousChapter;
+  final String previousTime;
 
-  const SpeakerCard({
+  const Manga({
+    required this.title,
+    required this.coverUrl,
+    required this.country,
+    required this.latestChapter,
+    required this.latestTime,
+    required this.previousChapter,
+    required this.previousTime,
+  });
+}
+
+// Reusable widget: badge bendera negara
+class CountryBadge extends StatelessWidget {
+  final String country;
+
+  const CountryBadge({super.key, required this.country});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isKorea = country == 'KR';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isKorea ? Colors.white : const Color(0xFFDE2910),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isKorea ? '🇰🇷' : '🇨🇳',
+        style: const TextStyle(fontSize: 16),
+      ),
+    );
+  }
+}
+
+// Reusable widget: tombol chapter + waktu rilis
+class ChapterTile extends StatelessWidget {
+  final String chapter;
+  final String time;
+  final VoidCallback? onTap;
+
+  const ChapterTile({
     super.key,
-    required this.imageUrl,
-    required this.name,
-    required this.role,
-    required this.badgeIcon,
-    required this.badgeLabel,
-    this.avatarRadius = 26,
-    this.nameFontSize = 13,
-    this.detailFontSize = 9,
-    this.iconSize = 14,
-    this.leftPadding = 8,
+    required this.chapter,
+    required this.time,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: EdgeInsets.only(left: leftPadding),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: avatarRadius,
-              backgroundImage: NetworkImage(imageUrl),
-              backgroundColor: Colors.black12,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3A3A3C),
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 10),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: nameFontSize,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+            child: Text(
+              chapter,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white70,
               ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              role,
-              style: TextStyle(
-                fontSize: detailFontSize,
-                color: Colors.black54,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Icon(badgeIcon, size: iconSize, color: Colors.black87),
-            const SizedBox(height: 2),
-            Text(
-              badgeLabel,
-              style: TextStyle(
-                fontSize: detailFontSize,
-                color: Colors.black54,
-              ),
-            ),
-          ],
+          ),
         ),
+        const SizedBox(height: 6),
+        Padding(
+          padding: const EdgeInsets.only(left: 2),
+          child: Text(
+            time,
+            style: const TextStyle(fontSize: 12, color: Colors.white38),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Reusable widget: kartu manga
+class MangaCard extends StatelessWidget {
+  final Manga manga;
+  final double width;
+
+  const MangaCard({super.key, required this.manga, required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Cover + badge negara
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: AspectRatio(
+                  aspectRatio: 3 / 4.2,
+                  child: Image.network(
+                    manga.coverUrl,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: const Color(0xFF2C2C2E),
+                        child: const Center(
+                          child: Icon(
+                            Icons.image_not_supported_outlined,
+                            size: 40,
+                            color: Colors.white38,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: CountryBadge(country: manga.country),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Judul (dipotong dengan ellipsis)
+          Text(
+            manga.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Colors.white70,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Chapter terbaru
+          ChapterTile(
+            chapter: manga.latestChapter,
+            time: manga.latestTime,
+          ),
+          const SizedBox(height: 10),
+
+          // Chapter sebelumnya
+          ChapterTile(
+            chapter: manga.previousChapter,
+            time: manga.previousTime,
+          ),
+        ],
       ),
     );
   }
 }
 
-class SeminarPage extends StatelessWidget {
-  const SeminarPage({super.key});
+class MangaListPage extends StatelessWidget {
+  const MangaListPage({super.key});
+
+  static const List<Manga> _mangaList = [
+    Manga(
+      title: 'MookHyang: Dark Lady',
+      coverUrl: 'https://picsum.photos/seed/manga1/400/560',
+      country: 'KR',
+      latestChapter: 'Chapter 300',
+      latestTime: '21 hours ago',
+      previousChapter: 'Chapter 299',
+      previousTime: '15 Sep 26',
+    ),
+    Manga(
+      title: 'It Starts With a King Account',
+      coverUrl: 'https://picsum.photos/seed/manga2/400/560',
+      country: 'CN',
+      latestChapter: 'Chapter 337',
+      latestTime: '21 hours ago',
+      previousChapter: 'Chapter 336',
+      previousTime: '2 days ago',
+    ),
+    Manga(
+      title: 'Reincarnator',
+      coverUrl: 'https://picsum.photos/seed/manga3/400/560',
+      country: 'KR',
+      latestChapter: 'Chapter 120',
+      latestTime: '1 day ago',
+      previousChapter: 'Chapter 119',
+      previousTime: '3 days ago',
+    ),
+    Manga(
+      title: 'Great Yuan Dynasty',
+      coverUrl: 'https://picsum.photos/seed/manga4/400/560',
+      country: 'CN',
+      latestChapter: 'Chapter 85',
+      latestTime: '2 days ago',
+      previousChapter: 'Chapter 84',
+      previousTime: '4 days ago',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    const double horizontalPadding = 16;
+    const double spacing = 16;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double cardWidth =
+        (screenWidth - (horizontalPadding * 2) - spacing) / 2;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Seminar Teknologi',
-          style: TextStyle(fontSize: 18),
+          'MGKOMIK',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
+        actions: const [
+          Icon(Icons.share_outlined),
+          SizedBox(width: 16),
+          Icon(Icons.bookmark_border),
+          SizedBox(width: 16),
+          Icon(Icons.more_vert),
+          SizedBox(width: 8),
+        ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image banner
-            Image.network(
-              'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200',
-              width: double.infinity,
-              height: 110,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: double.infinity,
-                  height: 110,
-                  color: Colors.grey.shade300,
-                  child: const Icon(
-                    Icons.landscape,
-                    size: 48,
-                    color: Colors.black38,
-                  ),
-                );
-              },
-            ),
-
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-
-                  // Judul
-                  const Text(
-                    'Seminar Teknologi 2026',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Subjudul
-                  const Text(
-                    'Membangun Masa Depan Digital dengan Artificial Intelligence',
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // RichText: tanggal
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                      children: [
-                        TextSpan(
-                          text: 'Tanggal: ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        TextSpan(text: '15 Oktober 2026'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-
-                  // RichText: waktu
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                      children: [
-                        TextSpan(
-                          text: 'Waktu: ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        TextSpan(text: '09.00 - 15.00 WIB'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-
-                  // RichText: lokasi
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontSize: 12, color: Colors.black54),
-                      children: [
-                        TextSpan(
-                          text: 'Lokasi: ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        TextSpan(text: 'Aula Universitas Mikroskil'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Judul section pembicara
-                  const Text(
-                    'Pembicara',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Pembicara 1
-                  const SpeakerCard(
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300',
-                    name: 'Dr. Budi Santoso',
-                    role: 'AI Researcher',
-                    badgeIcon: Icons.star,
-                    badgeLabel: 'Keynote Speaker',
-                    avatarRadius: 32,
-                    nameFontSize: 15,
-                    detailFontSize: 10,
-                    iconSize: 18,
-                    leftPadding: 8,
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Pembicara 2
-                  const SpeakerCard(
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=300',
-                    name: 'Siti Rahma',
-                    role: 'Data Scientist',
-                    badgeIcon: Icons.groups,
-                    badgeLabel: 'Guest Speaker',
-                    avatarRadius: 24,
-                    nameFontSize: 12,
-                    detailFontSize: 9,
-                    iconSize: 14,
-                    leftPadding: 12,
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Pembicara 3
-                  const SpeakerCard(
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=300',
-                    name: 'Andi Pratama',
-                    role: 'Software Engineer',
-                    badgeIcon: Icons.code,
-                    badgeLabel: 'Industry Speaker',
-                    avatarRadius: 26,
-                    nameFontSize: 13,
-                    detailFontSize: 9,
-                    iconSize: 14,
-                    leftPadding: 4,
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Ajakan
-                  const Text(
-                    'Jangan lewatkan kesempatan ini!',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // RichText: ajakan daftar
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(fontSize: 11, color: Colors.black54),
-                      children: [
-                        TextSpan(text: 'Daftarkan diri Anda sekarang dan dapatkan '),
-                        TextSpan(
-                          text: 'pengalaman belajar bersama para praktisi teknologi.',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Icon kalender
-                  const Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 24),
-                      child: Icon(
-                        Icons.event_available,
-                        size: 24,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ],
+        padding: const EdgeInsets.all(horizontalPadding),
+        child: Wrap(
+          spacing: spacing,
+          runSpacing: 28,
+          children: _mangaList
+              .map((manga) => MangaCard(manga: manga, width: cardWidth))
+              .toList(),
         ),
       ),
     );
