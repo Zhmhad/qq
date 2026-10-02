@@ -26,6 +26,82 @@ class SeminarApp extends StatelessWidget {
   }
 }
 
+// Reusable widget untuk identitas pembicara
+class SpeakerCard extends StatelessWidget {
+  final String imageUrl;
+  final String name;
+  final String role;
+  final IconData badgeIcon;
+  final String badgeLabel;
+  final double avatarRadius;
+  final double nameFontSize;
+  final double detailFontSize;
+  final double iconSize;
+  final double leftPadding;
+
+  const SpeakerCard({
+    super.key,
+    required this.imageUrl,
+    required this.name,
+    required this.role,
+    required this.badgeIcon,
+    required this.badgeLabel,
+    this.avatarRadius = 26,
+    this.nameFontSize = 13,
+    this.detailFontSize = 9,
+    this.iconSize = 14,
+    this.leftPadding = 8,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: EdgeInsets.only(left: leftPadding),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: avatarRadius,
+              backgroundImage: NetworkImage(imageUrl),
+              backgroundColor: Colors.black12,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: nameFontSize,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              role,
+              style: TextStyle(
+                fontSize: detailFontSize,
+                color: Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Icon(badgeIcon, size: iconSize, color: Colors.black87),
+            const SizedBox(height: 2),
+            Text(
+              badgeLabel,
+              style: TextStyle(
+                fontSize: detailFontSize,
+                color: Colors.black54,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class SeminarPage extends StatelessWidget {
   const SeminarPage({super.key});
 
@@ -154,132 +230,51 @@ class SeminarPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // Pembicara 1 (menjorok ke kiri halaman)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          CircleAvatar(
-                            radius: 32,
-                            backgroundImage: NetworkImage(
-                              'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300',
-                            ),
-                            backgroundColor: Colors.black12,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Dr. Budi Santoso',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Text(
-                            'AI Researcher',
-                            style: TextStyle(fontSize: 11, color: Colors.black54),
-                          ),
-                          SizedBox(height: 8),
-                          Icon(Icons.star, size: 18, color: Colors.black87),
-                          SizedBox(height: 2),
-                          Text(
-                            'Keynote Speaker',
-                            style: TextStyle(fontSize: 10, color: Colors.black54),
-                          ),
-                        ],
-                      ),
-                    ),
+                  // Pembicara 1
+                  const SpeakerCard(
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300',
+                    name: 'Dr. Budi Santoso',
+                    role: 'AI Researcher',
+                    badgeIcon: Icons.star,
+                    badgeLabel: 'Keynote Speaker',
+                    avatarRadius: 32,
+                    nameFontSize: 15,
+                    detailFontSize: 10,
+                    iconSize: 18,
+                    leftPadding: 8,
                   ),
                   const SizedBox(height: 28),
 
-                  // Pembicara 2 (menjorok ke kiri halaman)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          CircleAvatar(
-                            radius: 24,
-                            backgroundImage: NetworkImage(
-                              'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=300',
-                            ),
-                            backgroundColor: Colors.black12,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Siti Rahma',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Text(
-                            'Data Scientist',
-                            style: TextStyle(fontSize: 10, color: Colors.black54),
-                          ),
-                          SizedBox(height: 8),
-                          Icon(Icons.groups, size: 14, color: Colors.black87),
-                          SizedBox(height: 2),
-                          Text(
-                            'Guest Speaker',
-                            style: TextStyle(fontSize: 9, color: Colors.black54),
-                          ),
-                        ],
-                      ),
-                    ),
+                  // Pembicara 2
+                  const SpeakerCard(
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=300',
+                    name: 'Siti Rahma',
+                    role: 'Data Scientist',
+                    badgeIcon: Icons.groups,
+                    badgeLabel: 'Guest Speaker',
+                    avatarRadius: 24,
+                    nameFontSize: 12,
+                    detailFontSize: 9,
+                    iconSize: 14,
+                    leftPadding: 12,
                   ),
                   const SizedBox(height: 28),
 
-                  // Pembicara 3 (menjorok ke kiri halaman)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: const [
-                          CircleAvatar(
-                            radius: 26,
-                            backgroundImage: NetworkImage(
-                              'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=300',
-                            ),
-                            backgroundColor: Colors.black12,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Andi Pratama',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Text(
-                            'Software Engineer',
-                            style: TextStyle(fontSize: 9, color: Colors.black54),
-                          ),
-                          SizedBox(height: 8),
-                          Icon(Icons.code, size: 14, color: Colors.black87),
-                          SizedBox(height: 2),
-                          Text(
-                            'Industry Speaker',
-                            style: TextStyle(fontSize: 9, color: Colors.black54),
-                          ),
-                        ],
-                      ),
-                    ),
+                  // Pembicara 3
+                  const SpeakerCard(
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=300',
+                    name: 'Andi Pratama',
+                    role: 'Software Engineer',
+                    badgeIcon: Icons.code,
+                    badgeLabel: 'Industry Speaker',
+                    avatarRadius: 26,
+                    nameFontSize: 13,
+                    detailFontSize: 9,
+                    iconSize: 14,
+                    leftPadding: 4,
                   ),
                   const SizedBox(height: 32),
 
